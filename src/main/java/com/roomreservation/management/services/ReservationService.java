@@ -15,6 +15,8 @@ public interface ReservationService {
 
     void updateUserById(UUID UserId, User User);
 
+    List<User> listUsers();
+
     void deleteById(UUID UserId);
 
     void patchUserById(UUID UserId, User User);
