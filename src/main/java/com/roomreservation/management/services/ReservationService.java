@@ -7,18 +7,11 @@ import java.util.UUID;
 
 public interface ReservationService {
 
-    List<User> userlist();
-
-    User getUserById(UUID id);
-
     User saveNewUser(User User);
-
-    void updateUserById(UUID UserId, User User);
-
-    List<User> listUsers();
-
+    User updateUser(User User);
+    User findById(UUID id);
+    List<User> findAll();
     void deleteById(UUID UserId);
 
-    void patchUserById(UUID UserId, User User);
 
 }

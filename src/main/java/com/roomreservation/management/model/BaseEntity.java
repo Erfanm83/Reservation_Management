@@ -1,6 +1,7 @@
 package com.roomreservation.management.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,10 +19,13 @@ public class BaseEntity {
 
     @Getter
     @Setter
+    @NotBlank(message = "First name is required")
+    @Column(name = "names", length = 100, nullable = false)
     private String name;
 
     @Getter
     @Setter
+    @NotBlank(message = "Last name is required")
     private String lastname;
 
 //    private Long CreationUserId;

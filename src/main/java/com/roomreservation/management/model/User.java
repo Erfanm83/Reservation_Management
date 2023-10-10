@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.*;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDate;
@@ -14,9 +15,16 @@ import java.util.List;
 public class User extends BaseEntity {
 
     private String avatar; // Base64 encoded image data
+
+    @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
+
+    @NotBlank(message = "Please enter a valid gender")
     private String gender;
+
+    @Email(message = "Invalid email format")
     private String email;
+
     private Boolean permission;
 
     @Enumerated(EnumType.STRING)

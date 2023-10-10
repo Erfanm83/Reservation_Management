@@ -5,35 +5,19 @@ import com.roomreservation.management.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
 public class ReservationServiceImpl implements ReservationService {
 
-    private Map<UUID , User> UserMap;
-
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public ReservationServiceImpl(UserRepository userRepository) {
-        this.UserMap = new HashMap<>();
         this.userRepository = userRepository;
-    }
-
-    @Override
-    public List<User> userlist() {
-        return null;
-    }
-
-    @Override
-    public User getUserById(UUID id) {
-        log.debug("Get User by Id - in service. Id: " + id.toString());
-
-        return UserMap.get(id);
     }
 
     @Override
@@ -42,48 +26,31 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void updateUserById(UUID userId, User User) {
-        User existing = UserMap.get(userId);
-        existing.setId(User.getId());
-        existing.setName(User.getName());
-        existing.setLastname(User.getLastname());
+    public User updateUser(User user) {
+        User updateduser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("user not found"));
 
-    }
+        updateduser.setName(user.getName());
+        updateduser.setLastname(user.getLastname());
+        updateduser.setId(user.getId());
 
-    @Override
-    public List<User> listUsers(){
-        return new ArrayList<>(UserMap.values());
+        return userRepository.save(user);
     }
 
     @Override
     public void deleteById(UUID userId) {
-        UserMap.remove(userId);
+        userRepository.deleteById(userId);
     }
 
-    //Dorost shavad badan
     @Override
-    public void patchUserById(UUID UserId, User User) {
+    public User findById(UUID id) {
+        User foundUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("user not found"));
+        return foundUser;
+    }
 
-        User existing = UserMap.get(UserId);
-
-        if (StringUtils.hasText(User.getName())){
-            existing.setName(User.getName());
-        }
-
-        if (StringUtils.hasText(User.getLastname())){
-            existing.setName(User.getLastname());
-        }
-
-        if (User.getName() != null) {
-            existing.setName(User.getName());
-        }
-
-        if (User.getLastname() != null) {
-            existing.setLastname(User.getLastname());
-        }
-
-        if (User.getId() != null){
-            existing.setId(User.getId());
-        }
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }
