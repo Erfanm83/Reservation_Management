@@ -8,18 +8,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User , Long> {
 
-    Optional<User> findByNameAndLastname(String name , String lastname);
+    Optional<User> findByName(String name);
 
-    Optional<User> findByEmail(String email);
+//    Optional<User> findById(Long Id);
 
 //    Optional<User> findByIdIn(List<Long> Id);
 
-    Optional<User> findByNameOrId(String name, UUID id);
+    Optional<User> findByNameOrId(String name, Long id);
 
 //    //HQL implementation because we want a different functionality of what is existing
 //    @Query(value = "select p from User p where p.name =: name and p.lastname =: lastname")

@@ -12,62 +12,55 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 //used for logging in the console
 @Slf4j
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1")
 @Validated
 public class HomeController {
 
-    private ReservationService reservationService;
-
-    @PatchMapping("/{userId}")
-    public ResponseEntity updateUserPatchById(@Valid @PathVariable("userId")UUID userId, @Valid @RequestBody User user){
-
-        reservationService.patchUserById(userId , user);
-
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    private final ReservationService reservationService;
+    public HomeController(ReservationService reservationService) {
+        this.reservationService = reservationService;
     }
+
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity deleteuserById(@Valid @PathVariable("userId") UUID userId){
+    public ResponseEntity<?> deleteUserById(@Valid @PathVariable("userId") Long userId){
 
-        reservationService.deleteById(userId);
+        reservationService.delete(userId);
 
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{userId}")
-    public ResponseEntity updateById(@Valid @PathVariable("userId")UUID userId,@Valid @RequestBody User user){
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<User> updateById(@Valid @RequestBody User user){
 
-        reservationService.updateUserById(userId , user);
-
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(reservationService.updateUser(user));
     }
 
     @PostMapping("/register")
-    public ResponseEntity registeruser(@Valid @RequestBody User user){
+    public ResponseEntity<User> registerUser(@Valid @RequestBody User user){
 
         User savedUser = reservationService.saveNewUser(user);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/v1/User/" + savedUser.getId().toString());
 
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        return ResponseEntity.status(200).body(new User());
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<User> listUsers(){
-        return reservationService.userlist();
+    public ResponseEntity<List<User>> listUsers(){
+        return ResponseEntity.ok(reservationService.findAll());
     }
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public User getBeerById(@Valid @PathVariable("userId") UUID beerId){
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserById(@Valid @PathVariable Long userId){
 
         log.debug("Get User by Id - in controller");
 
-        return reservationService.getUserById(beerId);
+        return ResponseEntity.ok(reservationService.findById(userId));
     }
 }

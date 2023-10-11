@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import java.sql.Timestamp;
 import java.util.List;
 
-@Entity
+//@Entity
 //@Builder
 @RequiredArgsConstructor
 public class Room{
