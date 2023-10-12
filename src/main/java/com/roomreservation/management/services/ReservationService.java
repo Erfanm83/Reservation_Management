@@ -11,7 +11,9 @@ public interface ReservationService {
 
     User updateUser(User User);
 
-    User findById(Long id);
+    User findUserById(Long id);
+
+    Admin findAdminById(Long id);
 
     List<User> findAll();
 

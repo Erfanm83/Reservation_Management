@@ -1,15 +1,24 @@
 package com.roomreservation.management.controller;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
+import com.roomreservation.management.model.Admin;
+import com.roomreservation.management.model.BaseEntity;
 import com.roomreservation.management.model.User;
+import com.roomreservation.management.repository.AdminRepository;
+import com.roomreservation.management.repository.UserRepository;
 import com.roomreservation.management.services.ReservationService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 //used for logging in the console
 @Slf4j
@@ -20,6 +29,15 @@ import java.util.List;
 public class HomeController {
 
     private final ReservationService reservationService;
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public HomeController(ReservationService reservationService) {
         this.reservationService = reservationService;
@@ -49,6 +67,26 @@ public class HomeController {
 
         return ResponseEntity.status(200).body(new User());
     }
+    @PostMapping("/login")
+    public ResponseEntity<String> userLogin(@RequestParam String username , @RequestParam String password){
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isPresent() && passwordEncoder.matches(password , user.get().getpassword())){
+            return ResponseEntity.ok("User Logged in successful!");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
+    }
+    @PostMapping("/admin/login")
+    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
+        Optional<Admin> admin = adminRepository.findByUsername(username);
+
+        if (admin.isPresent() && passwordEncoder.matches(password, admin.get().getPassword())) {
+            return ResponseEntity.ok("Login successful!");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        }
+    }
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<User>> listUsers() {
@@ -60,6 +98,6 @@ public class HomeController {
 
         log.debug("Get User by Id - in controller");
 
-        return ResponseEntity.ok(reservationService.findById(userId));
+        return ResponseEntity.ok(reservationService.findUserById(userId));
     }
 }

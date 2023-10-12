@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -36,15 +37,15 @@ public class BaseEntity {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     private LocalDateTime CreationDate;
 
     @Column(name = "Role", length = 20, nullable = false)
     public String getRole() {
         return Role;
-    }
-
-    public void setRole(String role) {
-        Role = role;
     }
 
     @CreationTimestamp

@@ -48,9 +48,15 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public User findById(Long id) {
+    public User findUserById(Long id) {
         User foundUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user not found"));
         return foundUser;
+    }
+
+    @Override
+    public Admin findAdminById(Long id) {
+        Admin foundadmin = adminRepository.findById(id).orElseThrow(() -> new RuntimeException("admin not found"));
+        return foundadmin;
     }
 
     @Override
