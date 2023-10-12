@@ -15,6 +15,12 @@ import java.time.LocalDate;
 @Table(name = "user", schema = "users")
 public class User extends BaseEntity {
 
+    @NotBlank(message = "Please enter a valid name")
+    private String name;
+
+    @NotBlank(message = "Please enter a valid lastname")
+    private String lastname;
+
     private String avatar; // Base64 encoded image data
     @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
@@ -38,10 +44,19 @@ public class User extends BaseEntity {
         return email;
     }
 
+    @Column(name = "name", length = 20)
+    public String getName() {
+        return name;
+    }
+
+    @Column(name = "lastname", length = 30)
+    public String getLastname() {
+        return lastname;
+    }
+
     public String getGender() {
         return gender;
     }
-
 
 
     // other fields like work history, skills, interests

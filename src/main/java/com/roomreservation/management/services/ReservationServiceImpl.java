@@ -1,6 +1,10 @@
 package com.roomreservation.management.services;
 
+import com.roomreservation.management.model.Admin;
+import com.roomreservation.management.model.Room;
 import com.roomreservation.management.model.User;
+import com.roomreservation.management.repository.AdminRepository;
+import com.roomreservation.management.repository.RoomRepository;
 import com.roomreservation.management.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,9 +16,15 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final UserRepository userRepository;
 
+    private final AdminRepository adminRepository;
+
+    private final RoomRepository roomRepository;
+
     @Autowired
-    public ReservationServiceImpl(UserRepository userRepository) {
+    public ReservationServiceImpl(UserRepository userRepository , AdminRepository adminRepository , RoomRepository roomRepository) {
         this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -51,5 +61,14 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void delete(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public void createRoom(Admin admin, Room room) {
+        // Check if the admin has the necessary privileges to create a room, e.g., based on roles or permissions.
+        // Implement your authorization logic here.
+
+        // Save the room to the database
+        roomRepository.save(room);
     }
 }

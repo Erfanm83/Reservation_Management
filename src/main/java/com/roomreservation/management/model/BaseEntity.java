@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -14,29 +17,45 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @NotBlank(message = "First name is required")
-    private String name;
+    @NotBlank(message = "First username is required")
+    private String username;
 
+    @NotBlank(message = "Role Should not be null")
+    private String Role;
 
     @NotBlank(message = "Last name is required")
-    private String lastname;
+    private String password;
 
     @Column(name = "names", length = 25, nullable = false)
-    public String getName() {
-        return name;
+    public String getusername() {
+        return username;
     }
 
-    @Column(name = "lastnames", length = 100, nullable = false)
-    public String getLastname() {
-        return lastname;
+    @Column(name = "passwords", length = 100, nullable = false)
+    public String getpassword() {
+        return password;
+    }
+
+    private LocalDateTime CreationDate;
+
+    @Column(name = "Role", length = 20, nullable = false)
+    public String getRole() {
+        return Role;
+    }
+
+    public void setRole(String role) {
+        Role = role;
+    }
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    public LocalDateTime getCreationDate() {
+        return CreationDate;
     }
 
     //    private Long CreationUserId;
-//    private Long LastModifiedUserId;
-//    private LocalDateTime CreationDate;
-//    private LocalDateTime LastModifiedDate;
-
-//    @CreatedBy
+    //    private Long LastModifiedUserId;
+    //    @CreatedBy
 //    public Long getCreationUserId() {
 //        return CreationUserId;
 //    }

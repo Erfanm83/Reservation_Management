@@ -1,18 +1,13 @@
 package com.roomreservation.management.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 
-import java.sql.Timestamp;
-import java.util.List;
-
-//@Entity
-//@Builder
-@RequiredArgsConstructor
-public class Room{
+@Entity
+@Table(name = "room", schema = "rooms")
+public class Room {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Room name is required")
@@ -25,18 +20,50 @@ public class Room{
     private String location;
     private String image; // Base64 encoded image data
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @Id
-    public Long getId() {
-        return id;
-    }
-
+    // Add bookable times as a list of time slots
     // bookable times as a list of time slots
     // ...
 //    private List<Timestamp> BookableTimes;
 
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return roomname;
+    }
+
+    public void setName(String name) {
+        this.roomname = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 }
 

@@ -20,6 +20,8 @@ public interface UserRepository extends JpaRepository<User , Long> {
 
     Optional<User> findByNameOrId(String name, Long id);
 
+    Optional<User> findByPermission(Boolean permission);
+
 //    //HQL implementation because we want a different functionality of what is existing
 //    @Query(value = "select p from User p where p.name =: name and p.lastname =: lastname")
 //    Optional<User> findByIdxxx(String name , String lastname);
