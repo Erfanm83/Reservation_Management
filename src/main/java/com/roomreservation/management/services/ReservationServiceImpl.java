@@ -70,7 +70,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void createRoom(Admin admin, Room room) {
+    public void createRoom(Room room) {
         // Check if the admin has the necessary privileges to create a room, e.g., based on roles or permissions.
         // Implement your authorization logic here.
 

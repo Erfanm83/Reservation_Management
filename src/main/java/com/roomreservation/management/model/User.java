@@ -31,6 +31,8 @@ public class User extends BaseEntity {
 
     private Boolean permission;
 
+    private Boolean logged;
+
     @Enumerated(EnumType.STRING)
     private MaritalStatus maritalStatus;
 
@@ -58,6 +60,13 @@ public class User extends BaseEntity {
         return gender;
     }
 
+    public Boolean getLogged() {
+        return logged;
+    }
+
+    public void setLogged(Boolean logged) {
+        this.logged = logged;
+    }
 
     // other fields like work history, skills, interests
 //    @OneToMany(mappedBy = "user")

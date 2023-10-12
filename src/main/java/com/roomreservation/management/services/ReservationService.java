@@ -19,7 +19,7 @@ public interface ReservationService {
 
     void delete(Long UserId);
 
-    void createRoom(Admin admin, Room room);
+    void createRoom(Room room);
 
     // Add other admin-related methods
 }

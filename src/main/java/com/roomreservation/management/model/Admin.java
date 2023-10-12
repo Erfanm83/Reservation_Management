@@ -11,10 +11,21 @@ import java.util.List;
 @Entity
 public class Admin extends BaseEntity {
 
+    private Boolean Logged;
+
     @OneToMany(mappedBy = "admin")
     private List<Room> createdRooms;
 
     // Getters and setters
+
+    public Boolean getLogged() {
+        return Logged;
+    }
+
+    public void setLogged(Boolean logged) {
+        Logged = logged;
+    }
+
     public void setPassword(String password) {
         BaseEntity adminEntity = new BaseEntity();
         adminEntity.setPassword(new BCryptPasswordEncoder().encode(password));
