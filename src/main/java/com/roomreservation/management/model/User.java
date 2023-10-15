@@ -1,5 +1,6 @@
 package com.roomreservation.management.model;
 
+import com.roomreservation.management.DTO.MaritalStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +22,6 @@ public class User extends BaseEntity {
     @NotBlank(message = "Please enter a valid lastname")
     private String lastname;
 
-    private String avatar; // Base64 encoded image data
     @Past(message = "Date of birth must be in the past")
     private LocalDate dateOfBirth;
     @NotBlank(message = "Please enter a valid gender")
@@ -36,6 +36,14 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MaritalStatus maritalStatus;
 
+    @Lob
+    private String profilePhotoBase64;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "ip_info_id", referencedColumnName = "id")
+    private IpInfo ipInfo;
+
+    //Getters and Setters ...
     @Column(name = "dateofbirth")
     public LocalDate getDateOfBirth() {
         return dateOfBirth;

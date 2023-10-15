@@ -1,4 +1,4 @@
-package com.roomreservation.management.model;
+package com.roomreservation.management.DTO;
 
 public enum MaritalStatus {
     SINGLE("Single"),
@@ -11,10 +11,6 @@ public enum MaritalStatus {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
-
     public static MaritalStatus fromDisplayName(String displayName) {
         for (MaritalStatus status : values()) {
             if (status.getDisplayName().equalsIgnoreCase(displayName)) {
@@ -22,6 +18,10 @@ public enum MaritalStatus {
             }
         }
         throw new IllegalArgumentException("Unknown Marital Status: " + displayName);
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 }
 

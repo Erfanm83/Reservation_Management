@@ -2,8 +2,6 @@ package com.roomreservation.management.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
@@ -26,14 +24,14 @@ public class Admin extends BaseEntity {
         Logged = logged;
     }
 
-    public void setPassword(String password) {
-        BaseEntity adminEntity = new BaseEntity();
-        adminEntity.setPassword(new BCryptPasswordEncoder().encode(password));
-    }
-
     public String getPassword() {
         BaseEntity adminEntity = new BaseEntity();
         return adminEntity.getpassword();
+    }
+
+    public void setPassword(String password) {
+        BaseEntity adminEntity = new BaseEntity();
+        adminEntity.setPassword(new BCryptPasswordEncoder().encode(password));
     }
 
     public List<Room> getCreatedRooms() {

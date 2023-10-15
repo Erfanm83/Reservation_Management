@@ -21,7 +21,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final RoomRepository roomRepository;
 
     @Autowired
-    public ReservationServiceImpl(UserRepository userRepository , AdminRepository adminRepository , RoomRepository roomRepository) {
+    public ReservationServiceImpl(UserRepository userRepository, AdminRepository adminRepository, RoomRepository roomRepository) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.roomRepository = roomRepository;
