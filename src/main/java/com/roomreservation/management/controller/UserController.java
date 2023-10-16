@@ -2,8 +2,12 @@ package com.roomreservation.management.controller;
 
 import com.roomreservation.management.DTO.UserRegistrationRequest;
 import com.roomreservation.management.model.IpInfo;
+import com.roomreservation.management.model.Room;
 import com.roomreservation.management.model.User;
+import com.roomreservation.management.repository.RoomRepository;
 import com.roomreservation.management.repository.UserRepository;
+import com.roomreservation.management.security.LoginDeniedException;
+import com.roomreservation.management.security.RoomNotFoundException;
 import com.roomreservation.management.services.IpInfoService;
 import com.roomreservation.management.services.ReservationService;
 import jakarta.validation.Valid;
@@ -19,6 +23,7 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -33,8 +38,12 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
+    private RoomRepository roomRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
+    //Constructor
     public UserController(ReservationService userService, IpInfoService ipInfoService) {
         this.userService = userService;
         this.ipInfoService = ipInfoService;
@@ -68,13 +77,17 @@ public class UserController {
     @PostMapping("/login")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
     public ResponseEntity<String> userLogin(@RequestParam String username, @RequestParam String password) {
-        Optional<User> user = userRepository.findByUsername(username);
+        try {
+            Optional<User> user = userRepository.findByUsername(username);
 
-        if (user.isPresent() && passwordEncoder.matches(password, user.get().getpassword())) {
-            user.get().setLogged(true);
-            return ResponseEntity.ok("User Logged in successful!");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            if (user.isPresent() && passwordEncoder.matches(password, user.get().getpassword())) {
+                user.get().setLogged(true);
+                return ResponseEntity.ok("User Logged in successful!");
+            } else {
+                throw new LoginDeniedException("Login Failed!");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
         }
     }
 
@@ -83,9 +96,8 @@ public class UserController {
             @PathVariable Long userId,
             @RequestParam("photoBase64") String photoBase64) {
 
-        User user = userService.findUserById(userId);
-
         try {
+            Optional<User> user = userRepository.findById(userId);
             byte[] imageBytes = Base64.getDecoder().decode(photoBase64);
             ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
             if (ImageIO.read(bis) == null) {
@@ -94,8 +106,8 @@ public class UserController {
 
             // Rest of the code...
             if (user != null) {
-                user.setProfilePhotoBase64(photoBase64);
-                userService.saveNewUser(user);
+                user.get().setProfilePhotoBase64(photoBase64);
+                userService.saveNewUser(user.get());
                 return ResponseEntity.ok("Profile photo uploaded successfully!");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
@@ -103,6 +115,37 @@ public class UserController {
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing image");
+        }
+    }
+
+    @PostMapping("/reserve-room")
+    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_ADMIN to access
+    public ResponseEntity<String> reserve(@Valid @RequestParam String name, @Valid @RequestBody Room room) {
+
+        try {
+            Optional<User> permittedUser = userRepository.findByUsername(name);
+            //check if admin is currently logged in
+            if (permittedUser.isPresent() && permittedUser.get().getLogged()) {
+                //check if that room is available
+                if (room != null && roomRepository.findByName(room.getName()).isEmpty()) {
+                    userService.createRoom(room);
+                    return ResponseEntity.ok("Room created!");
+                } else {
+                    throw new RoomNotFoundException("Room not found");
+                }
+            } else
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not Found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
+        }
+    }
+
+    @GetMapping("/room-list")
+    public ResponseEntity<List<Room>> roomList() {
+        try {
+            return ResponseEntity.ok(userService.findAllRooms());
+        } catch (Exception e) {
+            return (ResponseEntity<List<Room>>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -7,6 +7,7 @@ import com.roomreservation.management.repository.AdminRepository;
 import com.roomreservation.management.repository.RoomRepository;
 import com.roomreservation.management.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -76,5 +77,10 @@ public class ReservationServiceImpl implements ReservationService {
 
         // Save the room to the database
         roomRepository.save(room);
+    }
+
+    @Override
+    public List<Room> findAllRooms() {
+        return roomRepository.findAll();
     }
 }

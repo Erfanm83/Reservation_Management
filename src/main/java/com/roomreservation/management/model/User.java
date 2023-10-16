@@ -39,6 +39,10 @@ public class User extends BaseEntity {
     @Lob
     private String profilePhotoBase64;
 
+    public void setProfilePhotoBase64(String profilePhotoBase64) {
+        this.profilePhotoBase64 = profilePhotoBase64;
+    }
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ip_info_id", referencedColumnName = "id")
     private IpInfo ipInfo;

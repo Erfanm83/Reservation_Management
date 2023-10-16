@@ -17,6 +17,8 @@ public interface ReservationService {
 
     List<User> findAll();
 
+    List<Room> findAllRooms();
+
     void delete(Long UserId);
 
     void createRoom(Room room);

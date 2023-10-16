@@ -34,4 +34,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid image format");
     }
+
+    @ExceptionHandler(RoomNotFoundException.class)
+    public ResponseEntity<String> handleRoomNotFoundException(RoomNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Room not found");
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<String> handlePermissionFailedException(PermissionDeniedException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Permission Denied");
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<String> handleLoginDeniedException(LoginDeniedException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Login Denied");
+    }
 }

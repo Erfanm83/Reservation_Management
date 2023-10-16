@@ -6,6 +6,8 @@ import com.roomreservation.management.model.User;
 import com.roomreservation.management.repository.AdminRepository;
 import com.roomreservation.management.repository.RoomRepository;
 import com.roomreservation.management.repository.UserRepository;
+import com.roomreservation.management.security.LoginDeniedException;
+import com.roomreservation.management.security.PermissionDeniedException;
 import com.roomreservation.management.services.ReservationService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +40,7 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    //Constructor
     public AdminController(ReservationService adminService) {
         this.adminService = adminService;
     }
@@ -45,28 +48,39 @@ public class AdminController {
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<?> deleteUserById(@Valid @PathVariable("userId") Long userId) {
 
-        adminService.delete(userId);
+        try {
+            adminService.delete(userId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return (ResponseEntity<User>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update/{userId}")
     public ResponseEntity<User> updateById(@Valid @RequestBody User user) {
-
-        return ResponseEntity.ok(adminService.updateUser(user));
+        try {
+            return ResponseEntity.ok(adminService.updateUser(user));
+        } catch (Exception e) {
+            return (ResponseEntity<User>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/login")
     @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
     public ResponseEntity<String> login(@RequestParam String adminusername, @RequestParam String adminpassword) {
-        Optional<Admin> admin = adminRepository.findByUsername(adminusername);
+        try {
+            Optional<Admin> admin = adminRepository.findByUsername(adminusername);
 
-        if (admin.isPresent() && passwordEncoder.matches(adminpassword, admin.get().getPassword())) {
-            //admin in now logged in
-            admin.get().setLogged(true);
-            return ResponseEntity.ok("Admin Login successful!");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            if (admin.isPresent() && passwordEncoder.matches(adminpassword, admin.get().getPassword())) {
+                //admin in now logged in
+                admin.get().setLogged(true);
+                return ResponseEntity.ok("Admin Login successful!");
+            } else {
+                throw new LoginDeniedException("Login Failed!");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
         }
     }
 
@@ -74,43 +88,55 @@ public class AdminController {
     @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
     public ResponseEntity<String> reserve(@Valid @RequestParam String adminusername, @Valid @RequestBody Room room) {
 
-        Optional<Admin> permittedAdmin = adminRepository.findByUsername(adminusername);
+        try {
+            Optional<Admin> permittedAdmin = adminRepository.findByUsername(adminusername);
 
-        //check if admin is currently logged in
-        if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
-            //check if that room is available
-            if (room != null && roomRepository.findByName(room.getName()).isEmpty()) {
-                adminService.createRoom(room);
-                return ResponseEntity.ok("Room created!");
+            //check if admin is currently logged in
+            if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
+                //check if that room is available
+                if (room != null && roomRepository.findByName(room.getName()).isEmpty()) {
+                    adminService.createRoom(room);
+                    return ResponseEntity.ok("Room created!");
+                } else
+                    throw new PermissionDeniedException("Permission Failed!");
             } else
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Room");
-        } else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin not Found");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin not Found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
+        }
     }
 
     @PostMapping("/user-permission/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
     public ResponseEntity<?> permit(@Valid @RequestParam String username, @Valid @PathVariable("userId") Long userId) {
 
-        Optional<Admin> permittedAdmin = adminRepository.findByUsername(username);
+        try {
+            Optional<Admin> permittedAdmin = adminRepository.findByUsername(username);
 
-        //check if such an admin is available
-        if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
-            Optional<User> permittedUser = userRepository.findById(userId);
+            //check if such an admin is available
+            if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
+                Optional<User> permittedUser = userRepository.findById(userId);
 
-            //check if such a user with that userId is available
-            if (permittedUser.isPresent() && !permittedUser.get().getPermission()) {
-                permittedUser.get().setPermission(true);
-                return ResponseEntity.ok(adminService.findAll());
+                //check if such a user with that userId is available
+                if (permittedUser.isPresent() && !permittedUser.get().getPermission()) {
+                    permittedUser.get().setPermission(true);
+                    return ResponseEntity.ok(adminService.findAll());
+                } else
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User already had permission");
             } else
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User already had permission");
-        } else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin not Found");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin not Found");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
+        }
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<User>> listUsers() {
-        return ResponseEntity.ok(adminService.findAll());
+        try {
+            return ResponseEntity.ok(adminService.findAll());
+        } catch (Exception e) {
+            return (ResponseEntity<List<User>>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/{userId}")
