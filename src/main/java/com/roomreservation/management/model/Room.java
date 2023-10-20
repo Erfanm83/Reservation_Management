@@ -10,9 +10,6 @@ import lombok.Setter;
 @Setter
 //@Table(name = "room", schema = "rooms")
 public class Room extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @NotBlank(message = "Room name is required")
     private String roomname;

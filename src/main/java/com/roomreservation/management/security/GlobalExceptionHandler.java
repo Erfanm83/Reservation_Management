@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Permission Denied");
     }
 
-    @ExceptionHandler(PermissionDeniedException.class)
+    @ExceptionHandler(LoginDeniedException.class)
     public ResponseEntity<String> handleLoginDeniedException(LoginDeniedException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Login Denied");
     }

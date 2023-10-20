@@ -27,6 +27,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @Validated
+@RequestMapping("/admin")
 public class AdminController {
 
     @Autowired
@@ -43,13 +44,11 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    //Constructor
-//    public AdminController(ReservationService adminService) {
-//        this.adminService = adminService;
-//    }
 
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<?> deleteUserById(@Valid @PathVariable("userId") Long userId) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+    public ResponseEntity<?> deleteUserById(@CookieValue(value = "Role_Admin", defaultValue = "Role_User")
+            @Valid @PathVariable("userId") Long userId) {
 
         try {
             reservationService.delete(userId);
@@ -61,7 +60,8 @@ public class AdminController {
     }
 
     @PutMapping("/update/{userId}")
-    public ResponseEntity<User> updateById(@Valid @RequestBody User user) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+    public ResponseEntity<User> updateById(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @Valid @RequestBody User user) {
         try {
             return ResponseEntity.ok(adminService.updateUser(user));
         } catch (Exception e) {
@@ -70,8 +70,8 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
-    public ResponseEntity<String> login(@RequestParam String adminusername, @RequestParam String adminpassword) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+    public ResponseEntity<String> login(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @RequestParam String adminusername, @RequestParam String adminpassword) {
         try {
             Optional<Admin> admin = adminRepository.findByUsername(adminusername);
 
@@ -88,8 +88,8 @@ public class AdminController {
     }
 
     @PostMapping("/reserve-room")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
-    public ResponseEntity<String> reserve(@Valid @RequestParam String adminusername, @Valid @RequestBody Room room) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+    public ResponseEntity<String> reserve(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @Valid @RequestParam String adminusername, @Valid @RequestBody Room room) {
 
         try {
             Optional<Admin> permittedAdmin = adminRepository.findByUsername(adminusername);
@@ -97,7 +97,7 @@ public class AdminController {
             //check if admin is currently logged in
             if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
                 //check if that room is available
-                if (room != null && roomRepository.findByName(room.getRoomname()).isEmpty()) {
+                if (room != null && roomRepository.findByRoomname(room.getRoomname()).isEmpty()) {
                     adminService.createRoom(room);
                     return ResponseEntity.ok("Room created!");
                 } else
@@ -111,7 +111,7 @@ public class AdminController {
 
     @PostMapping("/user-permission/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
-    public ResponseEntity<?> permit(@Valid @RequestParam String username, @Valid @PathVariable("userId") Long userId) {
+    public ResponseEntity<?> permit(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @Valid @RequestParam String username, @Valid @PathVariable("userId") Long userId) {
 
         try {
             Optional<Admin> permittedAdmin = adminRepository.findByUsername(username);
@@ -134,6 +134,7 @@ public class AdminController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
     public ResponseEntity<List<User>> listUsers() {
         try {
             return ResponseEntity.ok(reservationService.findAll());
@@ -143,16 +144,12 @@ public class AdminController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUserById(@Valid @PathVariable Long userId) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+    public ResponseEntity<User> getUserById(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @Valid @PathVariable Long userId) {
 
         log.debug("Get User by Id - in controller");
 
         return ResponseEntity.ok(reservationService.findUserById(userId));
     }
 
-    @GetMapping("/admin")
-    public String handleRequest() {
-        // Logic specific to handling admin requests
-        return "Admin request handled successfully!";
-    }
 }

@@ -12,10 +12,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    private final UserRepository userRepository;
-    private final AdminRepository adminRepository;
-
-    private final RoomRepository roomRepository;
+    private UserRepository userRepository;
+    private AdminRepository adminRepository;
+    private RoomRepository roomRepository;
 
     public AdminServiceImpl(UserRepository userRepository, AdminRepository adminRepository, RoomRepository roomRepository) {
         this.userRepository = userRepository;

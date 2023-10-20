@@ -10,7 +10,9 @@ import com.roomreservation.management.security.LoginDeniedException;
 import com.roomreservation.management.security.RoomNotFoundException;
 import com.roomreservation.management.services.IpInfoService;
 import com.roomreservation.management.services.ReservationService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +28,10 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @Validated
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -45,22 +49,25 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    //Constructor
-//    public UserController(ReservationService userService, IpInfoService ipInfoService) {
-//        this.userService = userService;
-//        this.ipInfoService = ipInfoService;
-//    }
-
     @PostMapping("/register")
-//    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
-    public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
+    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
+    public ResponseEntity<String> registerUser(@CookieValue(value = "Role_User", defaultValue = "Role_User")
+                                                   @Valid @RequestBody UserRegistrationRequest request
+            , HttpServletRequest httpRequest) {
         try {
-            // Fetch the IP information
-            IpInfo ipInfo = ipInfoService.fetchIpInfo(request.getIpAddress());
+            // Extract user's IP address from the request
+            String ipAddress = httpRequest.getHeader("HTTP_X_FORWARDED_FOR");
+            if (ipAddress == null) {
+                ipAddress = httpRequest.getRemoteAddr();
+            }
 
+            // Call the service to get IP information
+            IpInfo ipInfo = ipInfoService.getIpInfo(ipAddress);
+
+            // Associate this IpInfo with the user
             // Create a new user
             User user = new User();
-            // Set user information...
+
             user.setUsername(request.getFirstName());
             user.setLastname(request.getLastName());
             user.setEmail(request.getEmail());
@@ -82,7 +89,8 @@ public class UserController {
 
     @PostMapping("/login")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
-    public ResponseEntity<String> userLogin(@RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<String> userLogin(@CookieValue(value = "Role_User", defaultValue = "Role_User")
+                                                @RequestParam String username, @RequestParam String password) {
         try {
             Optional<User> user = userRepository.findByUsername(username);
 
@@ -98,7 +106,9 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/upload-photo")
+    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
     public ResponseEntity<String> uploadProfilePhoto(
+            @CookieValue(value = "Rol_Usere", defaultValue = "Role_User")
             @PathVariable Long userId,
             @RequestParam("photoBase64") String photoBase64) {
 
@@ -125,8 +135,8 @@ public class UserController {
     }
 
     @PostMapping("/reserve-room")
-    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_ADMIN to access
-    public ResponseEntity<String> reserve(@Valid @RequestParam String name, @Valid @RequestBody Room room) {
+    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
+    public ResponseEntity<String> reserve(@CookieValue(value = "Role_User", defaultValue = "Role_User") @Valid @RequestParam String name, @Valid @RequestBody Room room) {
 
         try {
             Optional<User> permittedUser = userRepository.findByUsername(name);
@@ -147,6 +157,7 @@ public class UserController {
     }
 
     @GetMapping("/room-list")
+    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
     public ResponseEntity<List<Room>> roomList() {
         try {
             return ResponseEntity.ok(userService.findAllRooms());
@@ -155,9 +166,4 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user")
-    public String handleRequest() {
-        // Logic specific to handling user requests
-        return "User request handled successfully!";
-    }
 }
