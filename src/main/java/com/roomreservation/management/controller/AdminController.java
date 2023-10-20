@@ -8,6 +8,7 @@ import com.roomreservation.management.repository.RoomRepository;
 import com.roomreservation.management.repository.UserRepository;
 import com.roomreservation.management.security.LoginDeniedException;
 import com.roomreservation.management.security.PermissionDeniedException;
+import com.roomreservation.management.services.AdminService;
 import com.roomreservation.management.services.ReservationService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +26,14 @@ import java.util.Optional;
 //used for logging in the console
 @Slf4j
 @RestController
-@RequestMapping("/api/v1")
 @Validated
 public class AdminController {
 
-    private final ReservationService adminService;
+    @Autowired
+    private AdminService adminService;
 
+    @Autowired
+    private ReservationService reservationService;
     @Autowired
     private AdminRepository adminRepository;
     @Autowired
@@ -40,16 +43,16 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    //Constructor
-    public AdminController(ReservationService adminService) {
-        this.adminService = adminService;
-    }
+//    //Constructor
+//    public AdminController(ReservationService adminService) {
+//        this.adminService = adminService;
+//    }
 
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<?> deleteUserById(@Valid @PathVariable("userId") Long userId) {
 
         try {
-            adminService.delete(userId);
+            reservationService.delete(userId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return (ResponseEntity<User>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,7 +70,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+//    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
     public ResponseEntity<String> login(@RequestParam String adminusername, @RequestParam String adminpassword) {
         try {
             Optional<Admin> admin = adminRepository.findByUsername(adminusername);
@@ -85,7 +88,7 @@ public class AdminController {
     }
 
     @PostMapping("/reserve-room")
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
+//    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
     public ResponseEntity<String> reserve(@Valid @RequestParam String adminusername, @Valid @RequestBody Room room) {
 
         try {
@@ -94,7 +97,7 @@ public class AdminController {
             //check if admin is currently logged in
             if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
                 //check if that room is available
-                if (room != null && roomRepository.findByName(room.getName()).isEmpty()) {
+                if (room != null && roomRepository.findByName(room.getRoomname()).isEmpty()) {
                     adminService.createRoom(room);
                     return ResponseEntity.ok("Room created!");
                 } else
@@ -120,7 +123,7 @@ public class AdminController {
                 //check if such a user with that userId is available
                 if (permittedUser.isPresent() && !permittedUser.get().getPermission()) {
                     permittedUser.get().setPermission(true);
-                    return ResponseEntity.ok(adminService.findAll());
+                    return ResponseEntity.ok(reservationService.findAll());
                 } else
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User already had permission");
             } else
@@ -133,7 +136,7 @@ public class AdminController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<User>> listUsers() {
         try {
-            return ResponseEntity.ok(adminService.findAll());
+            return ResponseEntity.ok(reservationService.findAll());
         } catch (Exception e) {
             return (ResponseEntity<List<User>>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -144,6 +147,12 @@ public class AdminController {
 
         log.debug("Get User by Id - in controller");
 
-        return ResponseEntity.ok(adminService.findUserById(userId));
+        return ResponseEntity.ok(reservationService.findUserById(userId));
+    }
+
+    @GetMapping("/admin")
+    public String handleRequest() {
+        // Logic specific to handling admin requests
+        return "Admin request handled successfully!";
     }
 }

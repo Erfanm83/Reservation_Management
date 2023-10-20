@@ -1,11 +1,12 @@
 package com.roomreservation.management.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class IpInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,6 +16,14 @@ public class IpInfo {
     private String timeZone;
     private String preferredLanguage;
 
-    // Getters and setters
-    // ...
+    // Other fields...
+
+    @OneToOne(mappedBy = "ipInfo") // mappedBy indicates the owning side of the relationship
+    private Admin admin;
+
+    @OneToOne(mappedBy = "ipInfo") // mappedBy indicates the owning side of the relationship
+    private User user;
+
+    // Constructors, getters, setters...
+
 }

@@ -16,9 +16,11 @@ import java.time.LocalDate;
 @Table(name = "user", schema = "users")
 public class User extends BaseEntity {
 
-    @NotBlank(message = "Please enter a valid name")
-    private String name;
+    @Column(name = "name")
+    @NotBlank(message = "Please enter a valid username")
+    private String username;
 
+    @Column(name = "lastname")
     @NotBlank(message = "Please enter a valid lastname")
     private String lastname;
 
@@ -39,13 +41,13 @@ public class User extends BaseEntity {
     @Lob
     private String profilePhotoBase64;
 
-    public void setProfilePhotoBase64(String profilePhotoBase64) {
-        this.profilePhotoBase64 = profilePhotoBase64;
-    }
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ip_info_id", referencedColumnName = "id")
     private IpInfo ipInfo;
+
+    public void setProfilePhotoBase64(String profilePhotoBase64) {
+        this.profilePhotoBase64 = profilePhotoBase64;
+    }
 
     //Getters and Setters ...
     @Column(name = "dateofbirth")
@@ -60,7 +62,7 @@ public class User extends BaseEntity {
 
     @Column(name = "name", length = 20)
     public String getName() {
-        return name;
+        return username;
     }
 
     @Column(name = "lastname", length = 30)

@@ -27,12 +27,14 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/users")
 @Validated
 public class UserController {
-    private final ReservationService userService;
 
-    private final IpInfoService ipInfoService;
+    @Autowired
+    private ReservationService userService;
+
+    @Autowired
+    private IpInfoService ipInfoService;
 
     @Autowired
     private UserRepository userRepository;
@@ -43,35 +45,39 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    //Constructor
-    public UserController(ReservationService userService, IpInfoService ipInfoService) {
-        this.userService = userService;
-        this.ipInfoService = ipInfoService;
-    }
+//    //Constructor
+//    public UserController(ReservationService userService, IpInfoService ipInfoService) {
+//        this.userService = userService;
+//        this.ipInfoService = ipInfoService;
+//    }
 
     @PostMapping("/register")
-    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
+//    @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
-        // Fetch the IP information
-        IpInfo ipInfo = ipInfoService.fetchIpInfo(request.getIpAddress());
+        try {
+            // Fetch the IP information
+            IpInfo ipInfo = ipInfoService.fetchIpInfo(request.getIpAddress());
 
-        // Create a new user
-        User user = new User();
-        // Set user information...
-        user.setName(request.getFirstName());
-        user.setLastname(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setGender(request.getGender());
-        user.setDateOfBirth(request.getDateOfBirth());
-        user.setMaritalStatus(request.getMaritalStatus());
+            // Create a new user
+            User user = new User();
+            // Set user information...
+            user.setUsername(request.getFirstName());
+            user.setLastname(request.getLastName());
+            user.setEmail(request.getEmail());
+            user.setGender(request.getGender());
+            user.setDateOfBirth(request.getDateOfBirth());
+            user.setMaritalStatus(request.getMaritalStatus());
 
-        // Link the user with the fetched IP information
-        user.setIpInfo(ipInfo);
+            // Link the user with the fetched IP information
+            user.setIpInfo(ipInfo);
 
-        // Save the user to the database
-        userService.saveNewUser(user);
+            // Save the user to the database
+            userService.saveNewUser(user);
 
-        return ResponseEntity.ok("User registered successfully!");
+            return ResponseEntity.ok("User registered successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
+        }
     }
 
     @PostMapping("/login")
@@ -127,7 +133,7 @@ public class UserController {
             //check if admin is currently logged in
             if (permittedUser.isPresent() && permittedUser.get().getLogged()) {
                 //check if that room is available
-                if (room != null && roomRepository.findByName(room.getName()).isEmpty()) {
+                if (room != null && roomRepository.findByRoomname(room.getRoomname()).isEmpty()) {
                     userService.createRoom(room);
                     return ResponseEntity.ok("Room created!");
                 } else {
@@ -149,4 +155,9 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user")
+    public String handleRequest() {
+        // Logic specific to handling user requests
+        return "User request handled successfully!";
+    }
 }

@@ -1,7 +1,9 @@
 package com.roomreservation.management.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
@@ -11,8 +13,13 @@ public class Admin extends BaseEntity {
 
     private Boolean Logged;
 
+    private String username;
     @OneToMany(mappedBy = "admin")
     private List<Room> createdRooms;
+
+    @OneToOne
+    @JoinColumn(name = "ip_info_id") // This is the foreign key column name
+    private IpInfo ipInfo;
 
     // Getters and setters
 

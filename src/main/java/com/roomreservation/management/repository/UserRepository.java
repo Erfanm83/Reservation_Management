@@ -1,24 +1,17 @@
 package com.roomreservation.management.repository;
 
-import com.roomreservation.management.model.Room;
 import com.roomreservation.management.model.User;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByName(String name);
-
 //    Optional<User> findById(Long Id);
 
 //    Optional<User> findByIdIn(List<Long> Id);
-
-    Optional<User> findByNameOrId(String name, Long id);
 
     Optional<User> findByUsername(String username);
 

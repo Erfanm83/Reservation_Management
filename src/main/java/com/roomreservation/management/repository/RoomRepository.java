@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface RoomRepository extends JpaRepository<Room, Long> {
     // Add custom query methods if needed
     // For example, findRoomByName(String name) to find a room by name
-    Optional<Room> findByName(String name);
+    Optional<Room> findByRoomname(String roomname);
 
     Optional<Room> findByLocation(String location);
 }
