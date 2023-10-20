@@ -1,8 +1,12 @@
 package com.roomreservation.management.services;
 
-import com.roomreservation.management.model.Room;
+import com.roomreservation.management.DTO.ReservationDTO;
+import com.roomreservation.management.model.MeetingRoom;
+import com.roomreservation.management.model.Reservation;
 import com.roomreservation.management.model.User;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 public interface ReservationService {
@@ -12,10 +16,13 @@ public interface ReservationService {
 
     List<User> findAll();
 
-    List<Room> findAllRooms();
+    List<MeetingRoom> findAllRooms();
 
     void delete(Long UserId);
 
-    void createRoom(Room room);
+//    void createRoom(MeetingRoom meetingRoom);
 
+    List<Reservation> get(LocalDate date);
+
+    List<Reservation> add(ReservationDTO reservationDTO);
 }

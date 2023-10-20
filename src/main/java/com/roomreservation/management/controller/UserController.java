@@ -1,10 +1,11 @@
 package com.roomreservation.management.controller;
 
+import com.roomreservation.management.DTO.ReservationDTO;
 import com.roomreservation.management.DTO.UserRegistrationRequest;
 import com.roomreservation.management.model.IpInfo;
-import com.roomreservation.management.model.Room;
+import com.roomreservation.management.model.Reservation;
 import com.roomreservation.management.model.User;
-import com.roomreservation.management.repository.RoomRepository;
+import com.roomreservation.management.repository.ReservationRepository;
 import com.roomreservation.management.repository.UserRepository;
 import com.roomreservation.management.security.LoginDeniedException;
 import com.roomreservation.management.security.RoomNotFoundException;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +47,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
-    private RoomRepository roomRepository;
+    private ReservationRepository reservationRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -52,7 +55,7 @@ public class UserController {
     @PostMapping("/register")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
     public ResponseEntity<String> registerUser(@CookieValue(value = "Role_User", defaultValue = "Role_User")
-                                                   @Valid @RequestBody UserRegistrationRequest request
+                                               @Valid @RequestBody UserRegistrationRequest request
             , HttpServletRequest httpRequest) {
         try {
             // Extract user's IP address from the request
@@ -89,8 +92,8 @@ public class UserController {
 
     @PostMapping("/login")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
-    public ResponseEntity<String> userLogin(@CookieValue(value = "Role_User", defaultValue = "Role_User")
-                                                @RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<String> login(@CookieValue(value = "Role_User", defaultValue = "Role_User")
+                                            @RequestParam String username, @RequestParam String password) {
         try {
             Optional<User> user = userRepository.findByUsername(username);
 
@@ -108,7 +111,7 @@ public class UserController {
     @PostMapping("/{userId}/upload-photo")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
     public ResponseEntity<String> uploadProfilePhoto(
-            @CookieValue(value = "Rol_Usere", defaultValue = "Role_User")
+            @CookieValue(value = "Role_User", defaultValue = "Role_User")
             @PathVariable Long userId,
             @RequestParam("photoBase64") String photoBase64) {
 
@@ -136,21 +139,16 @@ public class UserController {
 
     @PostMapping("/reserve-room")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
-    public ResponseEntity<String> reserve(@CookieValue(value = "Role_User", defaultValue = "Role_User") @Valid @RequestParam String name, @Valid @RequestBody Room room) {
+    public ResponseEntity<String> reserve(@CookieValue(value = "Role_User", defaultValue = "Role_User") @Valid @RequestBody ReservationDTO reservationDTO) {
 
         try {
-            Optional<User> permittedUser = userRepository.findByUsername(name);
-            //check if admin is currently logged in
-            if (permittedUser.isPresent() && permittedUser.get().getLogged()) {
-                //check if that room is available
-                if (room != null && roomRepository.findByRoomname(room.getRoomname()).isEmpty()) {
-                    userService.createRoom(room);
-                    return ResponseEntity.ok("Room created!");
-                } else {
-                    throw new RoomNotFoundException("Room not found");
-                }
-            } else
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not Found");
+            //check if that room is available
+            if (reservationDTO != null && !reservationRepository.findByRoomname(reservationDTO.getUsername()).isEmpty()) {
+                userService.add(reservationDTO);
+                return ResponseEntity.ok("Room created!");
+            } else {
+                throw new RoomNotFoundException("Couldn't create Room");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
         }
@@ -158,11 +156,11 @@ public class UserController {
 
     @GetMapping("/room-list")
     @PreAuthorize("hasRole('ROLE_USER')") // Requires ROLE_USER to access
-    public ResponseEntity<List<Room>> roomList() {
+    public ResponseEntity<List<Reservation>> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         try {
-            return ResponseEntity.ok(userService.findAllRooms());
+            return ResponseEntity.ok(userService.get(date));
         } catch (Exception e) {
-            return (ResponseEntity<List<Room>>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
+            return (ResponseEntity<List<Reservation>>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

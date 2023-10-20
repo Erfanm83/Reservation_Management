@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RoomTest {
+class MeetingRoomTest {
 
     @BeforeEach
     void setUp() {

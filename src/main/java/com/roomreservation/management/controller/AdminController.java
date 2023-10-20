@@ -1,18 +1,22 @@
 package com.roomreservation.management.controller;
 
+import com.roomreservation.management.DTO.ReservationDTO;
 import com.roomreservation.management.model.Admin;
-import com.roomreservation.management.model.Room;
+import com.roomreservation.management.model.MeetingRoom;
+import com.roomreservation.management.model.Reservation;
 import com.roomreservation.management.model.User;
 import com.roomreservation.management.repository.AdminRepository;
-import com.roomreservation.management.repository.RoomRepository;
+import com.roomreservation.management.repository.ReservationRepository;
 import com.roomreservation.management.repository.UserRepository;
 import com.roomreservation.management.security.LoginDeniedException;
 import com.roomreservation.management.security.PermissionDeniedException;
+import com.roomreservation.management.security.RoomNotFoundException;
 import com.roomreservation.management.services.AdminService;
 import com.roomreservation.management.services.ReservationService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,7 +45,7 @@ public class AdminController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RoomRepository roomRepository;
+    private ReservationRepository reservationRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -88,24 +93,29 @@ public class AdminController {
     }
 
     @PostMapping("/reserve-room")
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_ADMIN to access
-    public ResponseEntity<String> reserve(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @Valid @RequestParam String adminusername, @Valid @RequestBody Room room) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_USER to access
+    public ResponseEntity<String> reserve(@CookieValue(value = "Role_Admin", defaultValue = "Role_User") @Valid @RequestBody ReservationDTO reservationDTO) {
 
         try {
-            Optional<Admin> permittedAdmin = adminRepository.findByUsername(adminusername);
-
-            //check if admin is currently logged in
-            if (permittedAdmin.isPresent() && permittedAdmin.get().getLogged()) {
-                //check if that room is available
-                if (room != null && roomRepository.findByRoomname(room.getRoomname()).isEmpty()) {
-                    adminService.createRoom(room);
-                    return ResponseEntity.ok("Room created!");
-                } else
-                    throw new PermissionDeniedException("Permission Failed!");
-            } else
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin not Found");
+            //check if that room is available
+            if (reservationDTO != null && !reservationRepository.findByRoomname(reservationDTO.getUsername()).isEmpty()) {
+                adminService.add(reservationDTO);
+                return ResponseEntity.ok("Room created!");
+            } else {
+                throw new RoomNotFoundException("Couldn't create Room");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request");
+        }
+    }
+
+    @GetMapping("/room-list")
+    @PreAuthorize("hasRole('ROLE_ADMIN')") // Requires ROLE_USER to access
+    public ResponseEntity<List<Reservation>> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        try {
+            return ResponseEntity.ok(adminService.get(date));
+        } catch (Exception e) {
+            return (ResponseEntity<List<Reservation>>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

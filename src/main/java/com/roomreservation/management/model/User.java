@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class User extends BaseEntity {
 
     @Column(name = "name")
-    @NotBlank(message = "Please enter a valid username")
+    @NotBlank(message = "Please enter a valid name")
     private String username;
 
     @Column(name = "lastname")
@@ -41,9 +41,15 @@ public class User extends BaseEntity {
     @Lob
     private String profilePhotoBase64;
 
+    @NotBlank(message = "Last name is required")
+    private String password;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ip_info_id", referencedColumnName = "id")
     private IpInfo ipInfo;
+    public User() {
+        super(0L);
+    }
 
     public void setProfilePhotoBase64(String profilePhotoBase64) {
         this.profilePhotoBase64 = profilePhotoBase64;
@@ -70,6 +76,10 @@ public class User extends BaseEntity {
         return lastname;
     }
 
+    @Column(name = "password", length = 100, nullable = false)
+    public String getpassword() {
+        return password;
+    }
     public String getGender() {
         return gender;
     }

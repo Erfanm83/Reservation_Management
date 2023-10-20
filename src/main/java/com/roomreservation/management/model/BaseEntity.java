@@ -17,40 +17,44 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @NotBlank(message = "First username is required")
-    private String username;
-
-    @NotBlank(message = "Role Should not be null")
-    private String Role;
-
-    @NotBlank(message = "Last name is required")
-    private String password;
-    private LocalDateTime CreationDate;
-
-    @Column(name = "names", length = 25, nullable = false)
-    public String getusername() {
-        return username;
+    public BaseEntity(Long id) {
+        Id = id;
     }
 
-    @Column(name = "passwords", length = 100, nullable = false)
-    public String getpassword() {
-        return password;
+    //    @NotBlank(message = "First username is required")
+//    private String username;
+
+//    @NotBlank(message = "Role Should not be null")
+//    private String Role;
+
+//    @NotBlank(message = "Last name is required")
+//    private String password;
+
+
+//    @Column(name = "names", length = 25, nullable = false)
+//    public String getusername() {
+//        return username;
+//    }
+//
+//    @Column(name = "passwords", length = 100, nullable = false)
+//    public String getpassword() {
+//        return password;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
+//
+//    @Column(name = "Role", length = 20, nullable = false)
+//    public String getRole() {
+//        return Role;
+//    }
+
+
+    public Long getId() {
+        return Id;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Column(name = "Role", length = 20, nullable = false)
-    public String getRole() {
-        return Role;
-    }
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    public LocalDateTime getCreationDate() {
-        return CreationDate;
-    }
 
     //    private Long CreationUserId;
     //    private Long LastModifiedUserId;

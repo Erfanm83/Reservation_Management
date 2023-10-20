@@ -15,7 +15,7 @@ public class Admin extends BaseEntity {
 
     private String username;
     @OneToMany(mappedBy = "admin")
-    private List<Room> createdRooms;
+    private List<MeetingRoom> createdMeetingRooms;
 
     @OneToOne
     @JoinColumn(name = "ip_info_id") // This is the foreign key column name
@@ -41,16 +41,16 @@ public class Admin extends BaseEntity {
         adminEntity.setPassword(new BCryptPasswordEncoder().encode(password));
     }
 
-    public List<Room> getCreatedRooms() {
-        return createdRooms;
+    public List<MeetingRoom> getCreatedRooms() {
+        return createdMeetingRooms;
     }
 
-    public void setCreatedRooms(List<Room> createdRooms) {
-        this.createdRooms = createdRooms;
+    public void setCreatedRooms(List<MeetingRoom> createdMeetingRooms) {
+        this.createdMeetingRooms = createdMeetingRooms;
     }
 
-    public void createRoom(Room room) {
-        createdRooms.add(room);
+    public void createRoom(MeetingRoom meetingRoom) {
+        createdMeetingRooms.add(meetingRoom);
     }
 
     public User GetPermission(User user) {
