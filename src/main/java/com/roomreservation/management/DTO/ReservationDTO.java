@@ -1,11 +1,16 @@
 package com.roomreservation.management.DTO;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Getter
+@Setter
 public class ReservationDTO {
 
     @NotBlank
@@ -23,54 +28,13 @@ public class ReservationDTO {
     @NotNull
     private LocalTime endTime;
 
+    @NotNull
+    private String description;
+
+    @NotNull
+    private String location;
+
     @Min(0)
     private int repeatPerWeek;
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public Long getMeetingRoomId() {
-        return meetingRoomId;
-    }
-
-    public void setMeetingRoomId(Long meetingRoomId) {
-        this.meetingRoomId = meetingRoomId;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public int getRepeatPerWeek() {
-        return repeatPerWeek;
-    }
-
-    public void setRepeatPerWeek(int repeatPerWeek) {
-        this.repeatPerWeek = repeatPerWeek;
-    }
 }

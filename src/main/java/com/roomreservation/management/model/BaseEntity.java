@@ -27,8 +27,8 @@ public class BaseEntity {
 //    @NotBlank(message = "Role Should not be null")
 //    private String Role;
 
-//    @NotBlank(message = "Last name is required")
-//    private String password;
+    @NotBlank(message = "Last name is required")
+    private String password;
 
 
 //    @Column(name = "names", length = 25, nullable = false)
@@ -36,25 +36,18 @@ public class BaseEntity {
 //        return username;
 //    }
 //
-//    @Column(name = "passwords", length = 100, nullable = false)
-//    public String getpassword() {
-//        return password;
-//    }
-//
-//    public void setPassword(String password) {
-//        this.password = password;
-//    }
-//
-//    @Column(name = "Role", length = 20, nullable = false)
-//    public String getRole() {
-//        return Role;
-//    }
+    @Column(name = "passwords", length = 100, nullable = false)
+    public String getpassword() {
+        return password;
+    }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public Long getId() {
         return Id;
     }
-
 
     //    private Long CreationUserId;
     //    private Long LastModifiedUserId;

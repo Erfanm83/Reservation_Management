@@ -39,22 +39,24 @@ public class Reservation extends BaseEntity {
         super(0L);
     }
 
-    public Reservation(String username, MeetingRoom meetingRoom, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        this(0L, username, meetingRoom, date, startTime, endTime);
+    public Reservation(String username, MeetingRoom meetingRoom, LocalDate date, LocalTime startTime, LocalTime endTime , String description , String location) {
+        this(0L, username, meetingRoom, date, startTime, endTime, description, location);
     }
 
-    public Reservation(long id, String username, MeetingRoom meetingRoom, LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public Reservation(long id, String username, MeetingRoom meetingRoom, LocalDate date, LocalTime startTime, LocalTime endTime, String description, String location) {
         super(id);
         this.username = username;
         this.meetingRoom = meetingRoom;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.description = description;
+        this.location = location;
         validate();
     }
 
-    public static Reservation of(String username, MeetingRoom meetingRoom, LocalDate date, LocalTime startTime, LocalTime endTime) {
-        return new Reservation(username, meetingRoom, date, startTime, endTime);
+    public static Reservation of(String username, MeetingRoom meetingRoom, LocalDate date, LocalTime startTime, LocalTime endTime, String description, String location) {
+        return new Reservation(username, meetingRoom, date, startTime, endTime, description, location);
     }
 
     private void validate() {

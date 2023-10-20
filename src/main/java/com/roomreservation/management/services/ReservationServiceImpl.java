@@ -28,15 +28,13 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final MeetingRoomService meetingRoomService;
 
+    @Autowired
     public ReservationServiceImpl(UserRepository userRepository, ReservationRepository reservationRepository, MeetingRoomRepository meetingRoomRepository, MeetingRoomService meetingRoomService) {
         this.userRepository = userRepository;
         this.reservationRepository = reservationRepository;
         this.meetingRoomRepository = meetingRoomRepository;
         this.meetingRoomService = meetingRoomService;
     }
-
-    @Autowired
-
 
     @Override
     public User saveNewUser(User user) {
@@ -103,15 +101,15 @@ public class ReservationServiceImpl implements ReservationService {
         if (isOverlapped(meetingRoom.getId(), dates, startTime, endTime))
             throw new IllegalArgumentException("overlapped reservation");
 
-        return save(reservationDTO.getUsername(), meetingRoom, dates, startTime, endTime);
+        return save(reservationDTO.getUsername(), meetingRoom, dates, startTime, endTime, reservationDTO.getDescription(), reservationDTO.getLocation());
     }
 
 
-    private List<Reservation> save(String username, MeetingRoom meetingRoom, List<LocalDate> dates, LocalTime startTime, LocalTime endTime) {
+    private List<Reservation> save(String username, MeetingRoom meetingRoom, List<LocalDate> dates, LocalTime startTime, LocalTime endTime, String description , String location) {
         List<Reservation> reservations = new ArrayList<>();
         dates.stream()
                 .forEach(date -> reservations.add(
-                        reservationRepository.save(Reservation.of(username, meetingRoom, date, startTime, endTime))
+                        reservationRepository.save(Reservation.of(username, meetingRoom, date, startTime, endTime, description, location))
                 ));
         return reservations;
     }

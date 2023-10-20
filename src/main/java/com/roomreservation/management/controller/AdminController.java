@@ -98,7 +98,7 @@ public class AdminController {
 
         try {
             //check if that room is available
-            if (reservationDTO != null && !reservationRepository.findByRoomname(reservationDTO.getUsername()).isEmpty()) {
+            if (reservationDTO != null && !reservationRepository.findByUsername(reservationDTO.getUsername()).isEmpty()) {
                 adminService.add(reservationDTO);
                 return ResponseEntity.ok("Room created!");
             } else {

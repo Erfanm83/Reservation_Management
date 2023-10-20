@@ -10,6 +10,7 @@ import com.roomreservation.management.repository.ReservationRepository;
 import com.roomreservation.management.repository.UserRepository;
 import com.roomreservation.management.security.RoomNotFoundException;
 import com.roomreservation.management.support.Utility;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,13 +25,13 @@ public class AdminServiceImpl implements AdminService {
     private AdminRepository adminRepository;
     private ReservationRepository reservationRepository;
 
-    private final MeetingRoomService meetingRoomService;
+    @Autowired
+    private MeetingRoomService meetingRoomService;
 
-    public AdminServiceImpl(UserRepository userRepository, AdminRepository adminRepository, ReservationRepository reservationRepository, MeetingRoomService meetingRoomService) {
+    public AdminServiceImpl(UserRepository userRepository, AdminRepository adminRepository, ReservationRepository reservationRepository) {
         this.userRepository = userRepository;
         this.adminRepository = adminRepository;
         this.reservationRepository = reservationRepository;
-        this.meetingRoomService = meetingRoomService;
     }
 
     @Override
@@ -89,19 +90,21 @@ public class AdminServiceImpl implements AdminService {
         List<LocalDate> dates = Utility.GetDates(reservationDTO.getDate(), reservationDTO.getRepeatPerWeek());
         LocalTime startTime = reservationDTO.getStartTime();
         LocalTime endTime = reservationDTO.getEndTime();
+        String description = reservationDTO.getDescription();
+        String location = reservationDTO.getLocation();
 
         if (isOverlapped(meetingRoom.getId(), dates, startTime, endTime))
             throw new IllegalArgumentException("overlapped reservation");
 
-        return save(reservationDTO.getUsername(), meetingRoom, dates, startTime, endTime);
+        return save(reservationDTO.getUsername(), meetingRoom, dates, startTime, endTime , description, location);
     }
 
 
-    private List<Reservation> save(String username, MeetingRoom meetingRoom, List<LocalDate> dates, LocalTime startTime, LocalTime endTime) {
+    private List<Reservation> save(String username, MeetingRoom meetingRoom, List<LocalDate> dates, LocalTime startTime, LocalTime endTime, String description , String location) {
         List<Reservation> reservations = new ArrayList<>();
         dates.stream()
                 .forEach(date -> reservations.add(
-                        reservationRepository.save(Reservation.of(username, meetingRoom, date, startTime, endTime))
+                        reservationRepository.save(Reservation.of(username, meetingRoom, date, startTime, endTime, description, location))
                 ));
         return reservations;
     }

@@ -17,9 +17,9 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     // Add custom query methods if needed
     // For example, findRoomByName(String name) to find a room by name
-    Optional<MeetingRoom> findByRoomname(String roomname);
+    Optional<Reservation> findByUsername(String name);
 
-    Optional<MeetingRoom> findByLocation(String location);
+    Optional<Reservation> findByLocation(String location);
 
     List<Reservation> findAllByDateOrderByMeetingRoomIdAscStartTimeAsc(LocalDate date);
 

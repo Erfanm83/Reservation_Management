@@ -21,6 +21,10 @@ public class Admin extends BaseEntity {
     @JoinColumn(name = "ip_info_id") // This is the foreign key column name
     private IpInfo ipInfo;
 
+    public Admin() {
+        super(1L);
+    }
+
     // Getters and setters
 
     public Boolean getLogged() {
@@ -32,12 +36,12 @@ public class Admin extends BaseEntity {
     }
 
     public String getPassword() {
-        BaseEntity adminEntity = new BaseEntity();
+        BaseEntity adminEntity = new BaseEntity(0L);
         return adminEntity.getpassword();
     }
 
     public void setPassword(String password) {
-        BaseEntity adminEntity = new BaseEntity();
+        BaseEntity adminEntity = new BaseEntity(0L);
         adminEntity.setPassword(new BCryptPasswordEncoder().encode(password));
     }
 
